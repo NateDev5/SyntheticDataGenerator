@@ -1,0 +1,33 @@
+{
+  "name": "syntheticdatagenerator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "node ./dist/main.js",
+    "build_run": "npm run build & npm run test",
+    "build_lexer": "antlr4 -Dlanguage=TypeScript ./src/grammar/DataStructureGrammarLexer.g4 -o ./src/grammar/",
+    "build_parser": "antlr4 -Dlanguage=TypeScript -no-listener -visitor ./src/grammar/DataStructureGrammarParser.g4 -o ./src/grammar/",
+    "build_grammar": "npm run build_lexer && npm run build_parser",
+    "buildAll": "npm run build_grammar && npm run build_run"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@types/antlr4": "^4.11.2",
+    "@types/fs-extra": "^11.0.1",
+    "@types/node": "^18.16.3",
+    "@types/yargs": "^17.0.24",
+    "antlr4ts": "^0.5.0-alpha.4"
+  },
+  "dependencies": {
+    "antlr4": "^4.12.0",
+    "chalk": "^4.1.2",
+    "fs-extra": "^11.1.1",
+    "moment": "^2.29.4",
+    "yargs": "^17.7.2"
+  }
+}

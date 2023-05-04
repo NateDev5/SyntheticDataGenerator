@@ -1,0 +1,33 @@
+# import a plugins for example "faker" which is useful for generating a bunch of data
+REQUIRE_PLUGIN("faker");
+
+int Test_Int -> 10;
+
+bool Test_Bool1 -> true;
+bool Test_Bool2 -> 0;
+
+float Test_float -> 0.234332;
+
+string Test_String -> "This is a test string!";
+
+path Test_Path -> "D:\Nate\Nodejs\SyntheticDataGenerator\tests";
+
+jsonfile Person_jsonFile -> "D:\Nate\Nodejs\SyntheticDataGenerator\tests\Person.json";
+
+
+# Creating an interface 
+interface Person -> CREATE_INTERFACE ("Person", Person_jsonFile);
+
+
+# For creating an enum based on 2 parent interfaces
+# <Name_of_element> <(int)Threshold>
+
+float threshold -> 0.5;
+mutator eyeColor -> CREATE_WEIGHTED_MUTATOR("Person.EyeColor", threshold);
+
+# Generate basic json data that is simple and not base on any parameters
+# GENERATE("Person", 10);
+
+# Generate with mutators
+# <Name_of_interface> <array_of_mutator> <numbers_of_starting_couples>
+GENERATE_WITH_MUTATORS ("Person", [eyeColor], 4);

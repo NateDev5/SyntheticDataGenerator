@@ -1,0 +1,8 @@
+{
+    "FirstName": "string",
+    "LastName": "string",
+    "Age": "int",
+    "Sex": "enum(Male,Female)",
+    "PhoneNumber": "string",
+    "EyeColor": "enum(Blue,Green,Brown,Hazel)"
+}
