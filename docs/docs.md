@@ -3,6 +3,7 @@
     - [Symbols](#symbols)
     - [Variables](#variables)
     - [Functions](#functions)
+        - [Utils](#utils)
         - [Interfaces](#interfaces)
         - [Mutators](#mutators)
         - [Generation](#functions.generation)
@@ -13,7 +14,6 @@
 # **Basics**
 
 ## **Symbols**
----
 "```->```" This is used to declare or assign a variable.
 
 "```"```" This is used to create a string.
@@ -22,7 +22,6 @@
 <a name="symbols"></a>
 
 ## **Variables**
----
 ### **Basics**
 Variables are declared as so :
 ```js
@@ -87,8 +86,18 @@ mutator example -> CREATE_MUTATOR("example.exampleAttribute");
 
 # **Functions**
 
+## **Utils**
+#### **Require plugin**
+Require a plugin. This function should be at the start of the file
+```js
+REQUIRE_PLUGIN (<InterfaceName>)
+```
+Example :
+```js
+REQUIRE_PLUGIN("faker")
+```
+
 ## **Interfaces**
----
 Functions that are used to generate templates that are the foundation used to generate the data
 #### **Create interface**
 ```js
@@ -105,7 +114,6 @@ interface example2 -> CREATE_INTERFACE ("ExampleInterface", "D:/a/b/c/example.js
 ```
 
 ## **Mutators**
----
 Functions that are used to generate mutators which are used to mutate certain attributes based on 2 parents.
 
 They are 3 types of mutators
@@ -295,6 +303,15 @@ GENERATE ("Example", 10)
 
 ### **Script Example**
 - ```Person.json```:
+{
+    "FirstName": "string",
+    "LastName": "string",
+    "Age": "int",
+    "Sex": "enum(Male,Female)",
+    "PhoneNumber": "string",
+    "EyeColor": "enum(Blue,Green,Brown,Hazel)",
+    "Height": "float"
+}
 ```json
 ```
 
