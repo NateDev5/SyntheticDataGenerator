@@ -17,17 +17,21 @@ jsonfile Person_jsonFile -> "D:\Nate\Nodejs\SyntheticDataGenerator\tests\Person.
 
 # Creating an interface 
 interface Person -> CREATE_INTERFACE ("Person", Person_jsonFile);
+SET_DEFAULT ("Person.Height", [5.0, 6.5])
 
+float threshold -> 0.5;
 
 # For creating an enum based on 2 parent interfaces
 # <Name_of_element> <(int)Threshold>
-
-float threshold -> 0.5;
 mutator eyeColor -> CREATE_WEIGHTED_MUTATOR("Person.EyeColor", threshold);
+
+# For creating a float based on 2 parent interfaces
+# <Name_of_element>
+mutator height -> CREATE_RANGE_MUTATOR("Person.Height");
 
 # Generate basic json data that is simple and not base on any parameters
 # GENERATE("Person", 10);
 
 # Generate with mutators
 # <Name_of_interface> <array_of_mutator> <numbers_of_starting_couples>
-GENERATE_WITH_MUTATORS ("Person", [eyeColor], 4);
+GENERATE_WITH_MUTATORS ("Person", [eyeColor,height], 4);

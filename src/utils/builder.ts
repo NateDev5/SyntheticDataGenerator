@@ -1,13 +1,14 @@
 import { existsSync, mkdirSync, read, readFileSync, writeFileSync } from "fs";
 import { Debug, Severity } from "../misc/debug.js";
 import { InterpreterResult, Interpreter } from "./interpreter.js";
-import { AvailablePlugins, DefaultFunctions, KeyType, Sources, Variable } from "../misc/types.js";
+import { AvailablePlugins, DefaultFunctions, FunctionValue, KeyType, Sources, Variable, VariableType } from "../misc/types.js";
 import Utils from "../misc/utils.js";
 import { SyntaxBuilder } from "./syntaxBuilder.js";
 import { BaseTemplate, Tags, ParamTag, GenerateTemplate, GenerateWithMutatorsTemplate } from "./template.js";
 import path from "path";
 import moment from "moment";
 import chalk from "chalk";
+import { Interface } from "../data_generator/SyntheticDataGenerator.js";
 
 const exportPath = "./dist/bin"
 
@@ -19,6 +20,11 @@ export class Builder {
     private functions: string[];
     private constructors: string[];
     private declarations: string[];
+
+    private interfaces: Interface[];
+    private enums: Map<string, string>;
+
+    private failed: boolean;
     private verbose: boolean;
 
     constructor(filePath: string, verbose: boolean) {
@@ -29,6 +35,12 @@ export class Builder {
         this.functions = [];
         this.constructors = [];
         this.declarations = [];
+
+        this.interfaces = [];
+        this.enums = new Map();
+
+        this.failed = false;
+
         this.verbose = verbose;
     }
 
@@ -45,10 +57,10 @@ export class Builder {
 
             const interpreter: Interpreter = new Interpreter(this.verbose);
             const result: InterpreterResult = interpreter.Interpret(this.filePath);
-            
+
             let startPoint = result.funcs.find(f => f.function == DefaultFunctions.GENERATE ||
                 f.function == DefaultFunctions.GENERATE_WITH_MUTATORS) ?? false;
-            if(!startPoint)  throw new Error(`Script has no start point try adding "${this.Overline("GENERATE(<STRING | ID>, <INT>))")}" or "${this.Overline("GENERATE_WITH_MUTATORS(<STRING | ID>, <array(mutators)>, <INT>)")}". Nothing will happen if the script has neither of these functions!`)
+            if (!startPoint) throw new Error(`Script has no start point try adding "${this.Overline("GENERATE(<STRING | ID>, <INT>))")}" or "${this.Overline("GENERATE_WITH_MUTATORS(<STRING | ID>, <array(mutators)>, <INT>)")}". Nothing will happen if the script has neither of these functions!`)
 
             for (let i = 0; i < result.funcs.length; i++) {
                 switch (result.funcs[i].function) {
@@ -61,15 +73,20 @@ export class Builder {
                     case DefaultFunctions.CREATE_WEIGHTED_MUTATOR:
                         this.CreateWeightedMutator(result.funcs[i].values[0].value, result.funcs[i].values[1].value);
                         break;
+                    case DefaultFunctions.CREATE_RANGE_MUTATOR:
+                        this.CreateRangeMutator(result.funcs[i].values[0].value);
+                        break;
                     case DefaultFunctions.GENERATE:
                         this.functions.push(GenerateTemplate.content);
                         break;
                     case DefaultFunctions.GENERATE_WITH_MUTATORS:
                         this.functions.push(GenerateWithMutatorsTemplate.content);
-                        //result.funcs[i].values[1].value as 
                         break;
                     case DefaultFunctions.REQUIRE_PLUGIN:
                         this.RequirePlugin(result.funcs[i].values[0].value)
+                        break;
+                    case DefaultFunctions.SET_DEFAULT:
+                        this.SetDefault(result.funcs[i].values[0].value, result.funcs[i].values[1].value)
                     default:
                         break;
                 }
@@ -81,25 +98,37 @@ export class Builder {
             this.out = Utils.Replace(this.out, Tags.constructors, this.constructors.join("\n"))
             this.out = Utils.Replace(this.out, Tags.declarations, this.declarations.join(",\n"))
             //REDO THIS WHOLE PART
-            switch(startPoint.function) {
+            switch (startPoint.function) {
                 case DefaultFunctions.GENERATE:
                     this.out = this.out.replace(Tags.startPoint, `p.Generate`);
                     this.out = this.out.replace(Tags.startPointValues, `"${startPoint.values[0].value}", ${startPoint.values[0].value}`)
                     break;
                 case DefaultFunctions.GENERATE_WITH_MUTATORS:
+                    let array: string[] = [];
+                    let file = startPoint.values[0].value;
+                    (startPoint.values[1].value as []).forEach((v: Variable) => {
+                        if (!Utils.IsValidVariable(v.type, VariableType.MUTATOR_TYPE))
+                            throw new Error(`"${this.Overline(v.id)}" Should be of type "${this.Overline(VariableType.MUTATOR_TYPE)}" and not "${this.Overline(Utils.GetEnumValue(VariableType, v.type))}" at `);
+                        array.push(`${file}${Utils.Capitalize(v.id)}_mutator`)
+                    })
                     this.out = this.out.replace(Tags.startPoint, `p.GenerateWithMutators`);
-                    this.out = this.out.replace(Tags.startPointValues, `"${startPoint.values[0].value}", [${startPoint.values[0].value}${Utils.Capitalize((startPoint.values[1].value as any[])[0].id)}_mutator], ${startPoint.values[2].value}`)
+                    //${startPoint.values[0].value}${Utils.Capitalize((startPoint.values[1].value as any[])[0].id)}_mutator
+                    this.out = this.out.replace(Tags.startPointValues, `"${startPoint.values[0].value}", [${array.join(",")}], ${startPoint.values[2].value}`)
                     break;
             }
         }
         catch (err) {
+            console.log(err)
+            this.failed = true;
             Debug.WriteLine(err, Severity.Error, Sources.Builder);
             Debug.WriteLine("Building operation aborted", Severity.FatalError, Sources.Builder);
         }
         finally {
-            const outputPath: string = `${exportPath}/${Utils.GetFileName(this.filePath)}.sdg.ts`;
-            writeFileSync(outputPath, this.out);
-            this.log("Script successfully built : " + path.resolve(outputPath));
+            if (!this.failed) {
+                const outputPath: string = `${exportPath}/${Utils.GetFileName(this.filePath)}.sdg.ts`;
+                writeFileSync(outputPath, this.out);
+                this.log("Script successfully built : " + path.resolve(outputPath));
+            }
         }
     }
 
@@ -107,33 +136,37 @@ export class Builder {
         this.logVerbose(`Creating interface (${name})`)
 
         if (Utils.IsString(jsonFile)) jsonFile = Utils.TrimString(jsonFile);
-        if (!Utils.IsValidJSONFile(jsonFile)) throw new Error(`"${this.Overline(jsonFile)}" is not a valid json file`);
+        if (!Utils.IsValidJSONFile(jsonFile) || !existsSync(jsonFile)) throw new Error(`"${this.Overline(jsonFile)}" is not a valid json file`);
         let json = JSON.parse(readFileSync(jsonFile, "utf-8"));
         let values: Map<string, KeyType> = new Map();
         for (const key in json) {
             let type: KeyType = this.ParseKeyType(json[key]);
             values.set(key, this.ParseKeyType(json[key]));
-            if (type == KeyType.enum)
+            if (type == KeyType.enum) {
+                this.enums.set(`${name}.${key}`, `${name}_${key}_enum`);
                 this.headers.push(SyntaxBuilder.BuildEnum(`${name}_${key}_enum`, this.ParseEnum(json[key])));
+            }
         }
         this.headers.push(SyntaxBuilder.BuildInterface(name, values));
     }
 
-    private CreateMutator () {
+    private CreateMutator() {
 
     }
 
-    private CreateWeightedMutator (path: string, threshold: number) {
+    private CreateWeightedMutator(path: string, threshold: number) {
         this.logVerbose(`Creating weighted mutator (${path})`)
-
-        //if(!Utils.IsString(path)) throw new Error(`"${this.Overline(path)}" is not a valid string`);
-        //if(!Utils.IsFloat(threshold.toString())) throw new Error(`"${this.Overline(threshold.toString())}" is not a valid float`);
-        this.headers.push(SyntaxBuilder.BuildMutator(path, threshold));
+        this.headers.push(SyntaxBuilder.BuildWeightedMutator(path, threshold, this.enums.get(path) ?? "undefined"));
     }
 
-    private RequirePlugin (name: string) {
+    private CreateRangeMutator(path: string) {
+        this.logVerbose(`Creating range mutator (${path})`)
+        this.headers.push(SyntaxBuilder.BuildRangeMutator(path));
+    }
+
+    private RequirePlugin(name: string) {
         this.logVerbose(`Requiring package (${name})`)
-        if(!Utils.HasEnumKeys(AvailablePlugins, name)) throw new Error(`"${this.Overline(name)}" is not a recognized plugin. You can find a list of available plugins with the command "${this.Overline("plugins")}"`)
+        if (!Utils.HasEnumKeys(AvailablePlugins, name)) throw new Error(`"${this.Overline(name)}" is not a recognized plugin. You can find a list of available plugins with the command "${this.Overline("plugins")}"`)
         this.plugins.push(SyntaxBuilder.AddImport(name, Utils.GetEnumValue(AvailablePlugins, name)));
     }
 
@@ -151,6 +184,12 @@ export class Builder {
             default:
                 return KeyType.any;
         }
+    }
+
+    private SetDefault(name: string, values: (Variable | FunctionValue)[]) {
+        this.logVerbose(`Setting default (${name})`)
+        values = values.map(v => v.value);
+        this.headers.push(SyntaxBuilder.SetDefault(name.split(".").join(""), values))
     }
 
     private ParseEnum(value: string): string[] {
@@ -177,7 +216,7 @@ export class Builder {
         if (this.verbose) Debug.WriteLine(msg, Severity.Verbose, Sources.Builder);
     }
 
-    private Overline (value: string): string {
+    private Overline(value: string): string {
         return chalk.blueBright(value);
     }
 }

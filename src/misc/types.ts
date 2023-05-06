@@ -48,7 +48,9 @@ export enum DefaultFunctions {
     CREATE_WEIGHTED_MUTATOR = "createWeightedMutator",
     GENERATE = "generate",
     GENERATE_WITH_MUTATORS = "generateWithMutators",
-    REQUIRE_PLUGIN = "requirePlugin"
+    REQUIRE_PLUGIN = "requirePlugin",
+    SET_DEFAULT = "setDefault",
+    CREATE_RANGE_MUTATOR = "createRangeMutator"
 }
 
 export interface Function {
@@ -65,12 +67,17 @@ export interface FunctionVariable extends Variable {
     index: number
 }
 
+export interface MutatorVariable extends FunctionVariable {
+    path: string
+}
+
 export enum KeyType {
     enum = "enum",
     string = "string",
     int = "number",
     array = "[]",
     bool = "boolean",
+    float = "number",
     any = "any"
 }
 

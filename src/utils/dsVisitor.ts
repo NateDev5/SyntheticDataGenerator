@@ -1,10 +1,11 @@
 import { Parser, ParserRuleContext, RecognitionException } from "antlr4";
-import { AnyContext, ArrayContext, CreateInterfaceContext, CreateMutatorContext, CreateWeightedMutatorContext, DeclarationContext, FunctionsContext, GenerateContext, GenerateWithMutatorsContext, ProgramContext, RequirePluginContext, StatementsContext, SyntaxContext, VariablesContext } from "../grammar/DataStructureGrammarParser.js";
+import { AnyContext, ArrayContext, CreateInterfaceContext, CreateMutatorContext, CreateRangeMutatorContext, CreateWeightedMutatorContext, DeclarationContext, FunctionsContext, GenerateContext, GenerateWithMutatorsContext, ProgramContext, RequirePluginContext, SetDefaultContext, StatementsContext, SyntaxContext, VariablesContext } from "../grammar/DataStructureGrammarParser.js";
 import DataStructureGrammarParserVisitor from "../grammar/DataStructureGrammarParserVisitor.js";
 import Utils from "../misc/utils.js";
 import { Debug, Severity } from "../misc/debug.js";
 import DataStructureGrammarLexer from "../grammar/DataStructureGrammarLexer.js";
 import { Variable, VariableError, VariableType, DefaultFunctions, Function, FunctionValue, FunctionVariable, Sources } from "../misc/types.js";
+import chalk from "chalk";
 
 class DsVisitor extends DataStructureGrammarParserVisitor<any> {
     public errors: RecognitionException[];
@@ -42,12 +43,6 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
                 case VariableType.JSONFILE_TYPE:
                     if (Utils.IsString(_value) && Utils.IsValidJSONFile(_value))
                         result = { type: VariableType.JSONFILE_TYPE, value: Utils.TrimString(_value) }
-                    else if (Utils.HasVariable(this.variables, _value)) {
-                        let _var: (Variable | FunctionValue | false) = Utils.FindVariableById(this.variables, _value);
-                        if (_var == false) _var = { type: VariableType.variable_name, value: _value }
-                        else (_var as FunctionVariable).index = Utils.ArrayGetIndex(this.variables, _var);
-                        result = _var;
-                    }
                     break;
                 case VariableType.INT_TYPE:
                     if(Utils.IsInt(_value))
@@ -85,6 +80,10 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         if (this.verbose) Debug.WriteLine(msg, Severity.Verbose, Sources.Visitor);
     }
 
+    private Overline (value: string): string {
+        return chalk.blueBright(value);
+    }
+
     visitProgram: (ctx: ProgramContext) => any = (ctx: ProgramContext) => {
         this.logVerbose("Visiting program")
         if (ctx.exception) this.errors.push(ctx.exception);
@@ -109,6 +108,8 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _type: VariableType = Utils.GetFromEnum(VariableType, ctx.start.text) as VariableType;//DataStructureGrammarLexer.symbolicNames[ctx.start.type] as VariableType;
         let _id: string = ctx.getChild(1).getText();
         let _value: any = ctx.getChild(3).getText();
+        let duplicateVar: Variable | null = this.variables.find(v => v.id == _id) ?? null;
+        if(duplicateVar != null) throw new Error(`Duplicate variable found "${this.Overline(_id)}" of type "${this.Overline(_type)}" and "${this.Overline(duplicateVar.id)}" of type "${this.Overline(duplicateVar.type)}" `)
         switch (_type) {
             case VariableType.BOOL_TYPE:
                 _value = Utils.BoolFromText(_value);
@@ -240,6 +241,33 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         this.logVerbose("Function pushed " + _function)
     }
 
+    visitSetDefault: (ctx: SetDefaultContext) => any = (ctx: SetDefaultContext) => {
+        this.logVerbose("Visiting Function")
+        this.visitNext(ctx);
+        const _function: DefaultFunctions = DefaultFunctions.SET_DEFAULT;
+        let _values: (FunctionValue | Variable)[] = [];
+        let _param1: string = Utils.GetFunctionParam(1, ctx);
+        let _param2: string = Utils.GetFunctionParam(2, ctx);
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
+        _values.push(this.convertValue(`array_${_param2
+        .replaceAll(('['), '')
+        .replaceAll((']'), '')
+        .split(",")[0]}`, VariableType.array));
+        this.functions.push({ function: _function, values: _values });
+        this.logVerbose("Function pushed " + _function)
+    }
+
+    visitCreateRangeMutator: (ctx: CreateRangeMutatorContext) => any = (ctx: CreateRangeMutatorContext) => {
+        this.logVerbose("Visiting Function")
+        this.visitNext(ctx);
+        const _function: DefaultFunctions = DefaultFunctions.CREATE_RANGE_MUTATOR;
+        let _values: (FunctionValue | Variable)[] = [];
+        let _param1: string = Utils.GetFunctionParam(1, ctx);
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
+        this.functions.push({ function: _function, values: _values });
+        this.logVerbose("Function pushed " + _function)
+    }
+
     visitAny: ((ctx: AnyContext) => any) = (ctx: AnyContext) => {
         this.logVerbose("Visiting Any")
         this.visitNext(ctx);
@@ -256,6 +284,7 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _id: string = ctx.getChild(1).getText();
         let _values: Variable[] = [];
         _content.forEach(c => {
+            // Need to implement error handling if a function is provided instead of a variable
             _values.push(this.convertValue(c, VariableType.any, Object.values(VariableType)))
         })
         this.variables.push({ type: VariableType.array, id: `array_${_id}`, num: ctx.ruleIndex, value: _values });

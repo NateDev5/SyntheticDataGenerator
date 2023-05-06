@@ -13,10 +13,12 @@ import { AnyContext } from "./DataStructureGrammarParser";
 import { VariablesContext } from "./DataStructureGrammarParser";
 import { CreateInterfaceContext } from "./DataStructureGrammarParser";
 import { CreateMutatorContext } from "./DataStructureGrammarParser";
+import { CreateRangeMutatorContext } from "./DataStructureGrammarParser";
 import { CreateWeightedMutatorContext } from "./DataStructureGrammarParser";
 import { GenerateContext } from "./DataStructureGrammarParser";
 import { GenerateWithMutatorsContext } from "./DataStructureGrammarParser";
 import { RequirePluginContext } from "./DataStructureGrammarParser";
+import { SetDefaultContext } from "./DataStructureGrammarParser";
 
 
 /**
@@ -88,6 +90,12 @@ export default class DataStructureGrammarParserVisitor<Result> extends ParseTree
 	 */
 	visitCreateMutator?: (ctx: CreateMutatorContext) => Result;
 	/**
+	 * Visit a parse tree produced by `DataStructureGrammarParser.createRangeMutator`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitCreateRangeMutator?: (ctx: CreateRangeMutatorContext) => Result;
+	/**
 	 * Visit a parse tree produced by `DataStructureGrammarParser.createWeightedMutator`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -111,5 +119,11 @@ export default class DataStructureGrammarParserVisitor<Result> extends ParseTree
 	 * @return the visitor result
 	 */
 	visitRequirePlugin?: (ctx: RequirePluginContext) => Result;
+	/**
+	 * Visit a parse tree produced by `DataStructureGrammarParser.setDefault`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitSetDefault?: (ctx: SetDefaultContext) => Result;
 }
 

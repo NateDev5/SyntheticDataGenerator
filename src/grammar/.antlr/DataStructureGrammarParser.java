@@ -17,24 +17,26 @@ public class DataStructureGrammarParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		BOOL_TYPE=1, INT_TYPE=2, STRING_TYPE=3, JSONFILE_TYPE=4, PATH_TYPE=5, 
-		MUTATOR_TYPE=6, INTERFACE_TYPE=7, FLOAT_TYPE=8, IF=9, ELSE=10, WHILE=11, 
-		PRINT=12, FUNCTION=13, BOOL=14, TRUE=15, FALSE=16, CREATE_INTERFACE=17, 
-		REQUIRE_PLUGIN=18, CREATE_MUTATOR=19, CREATE_WEIGHTED_MUTATOR=20, GENERATE=21, 
-		GENERATE_WITH_MUTATORS=22, ID=23, INT=24, FLOAT=25, STRING=26, SET=27, 
-		PLUS=28, MINUS=29, TIMES=30, DIVIDE=31, GT=32, GE=33, LT=34, LE=35, EQ=36, 
-		COMMA=37, NE=38, ASSIGN=39, LPAREN=40, RPAREN=41, LBRACE=42, RBRACE=43, 
-		LSQRBRAKET=44, RSQRBRAKET=45, SEMICOLON=46, COLON=47, DOUBLEQUOTE=48, 
-		COMMENT=49, WS=50, ARRAY_TYPE=51;
+		MUTATOR_TYPE=6, INTERFACE_TYPE=7, FLOAT_TYPE=8, ARRAY_TYPE=9, IF=10, ELSE=11, 
+		WHILE=12, PRINT=13, FUNCTION=14, BOOL=15, TRUE=16, FALSE=17, CREATE_INTERFACE=18, 
+		REQUIRE_PLUGIN=19, CREATE_MUTATOR=20, CREATE_WEIGHTED_MUTATOR=21, GENERATE=22, 
+		GENERATE_WITH_MUTATORS=23, SET_DEFAULT=24, CREATE_RANGE_MUTATOR=25, ID=26, 
+		INT=27, FLOAT=28, STRING=29, SET=30, PLUS=31, MINUS=32, TIMES=33, DIVIDE=34, 
+		GT=35, GE=36, LT=37, LE=38, EQ=39, COMMA=40, NE=41, ASSIGN=42, LPAREN=43, 
+		RPAREN=44, LBRACE=45, RBRACE=46, LSQRBRAKET=47, RSQRBRAKET=48, SEMICOLON=49, 
+		COLON=50, DOUBLEQUOTE=51, COMMENT=52, WS=53;
 	public static final int
 		RULE_program = 0, RULE_syntax = 1, RULE_declaration = 2, RULE_statements = 3, 
 		RULE_functions = 4, RULE_array = 5, RULE_any = 6, RULE_variables = 7, 
-		RULE_createInterface = 8, RULE_createMutator = 9, RULE_createWeightedMutator = 10, 
-		RULE_generate = 11, RULE_generateWithMutators = 12, RULE_requirePlugin = 13;
+		RULE_createInterface = 8, RULE_createMutator = 9, RULE_createRangeMutator = 10, 
+		RULE_createWeightedMutator = 11, RULE_generate = 12, RULE_generateWithMutators = 13, 
+		RULE_requirePlugin = 14, RULE_setDefault = 15;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"program", "syntax", "declaration", "statements", "functions", "array", 
-			"any", "variables", "createInterface", "createMutator", "createWeightedMutator", 
-			"generate", "generateWithMutators", "requirePlugin"
+			"any", "variables", "createInterface", "createMutator", "createRangeMutator", 
+			"createWeightedMutator", "generate", "generateWithMutators", "requirePlugin", 
+			"setDefault"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -42,25 +44,27 @@ public class DataStructureGrammarParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "'bool'", "'int'", "'string'", "'jsonfile'", "'path'", "'mutator'", 
-			"'interface'", "'float'", "'if'", "'else'", "'while'", "'print'", "'func'", 
-			null, null, null, "'CREATE_INTERFACE'", "'REQUIRE_PLUGIN'", "'CREATE_MUTATOR'", 
-			"'CREATE_WEIGHTED_MUTATOR'", "'GENERATE'", "'GENERATE_WITH_MUTATORS'", 
-			null, null, null, null, "'->'", "'+'", "'-'", "'*'", "'/'", "'>'", "'>='", 
-			"'<'", "'<='", "'=='", "','", "'!='", "'='", "'('", "')'", "'{'", "'}'", 
-			"'['", "']'", "';'", "':'", "'\"'"
+			"'interface'", "'float'", "'array'", "'if'", "'else'", "'while'", "'print'", 
+			"'func'", null, null, null, "'CREATE_INTERFACE'", "'REQUIRE_PLUGIN'", 
+			"'CREATE_MUTATOR'", "'CREATE_WEIGHTED_MUTATOR'", "'GENERATE'", "'GENERATE_WITH_MUTATORS'", 
+			"'SET_DEFAULT'", "'CREATE_RANGE_MUTATOR'", null, null, null, null, "'->'", 
+			"'+'", "'-'", "'*'", "'/'", "'>'", "'>='", "'<'", "'<='", "'=='", "','", 
+			"'!='", "'='", "'('", "')'", "'{'", "'}'", "'['", "']'", "';'", "':'", 
+			"'\"'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, "BOOL_TYPE", "INT_TYPE", "STRING_TYPE", "JSONFILE_TYPE", "PATH_TYPE", 
-			"MUTATOR_TYPE", "INTERFACE_TYPE", "FLOAT_TYPE", "IF", "ELSE", "WHILE", 
-			"PRINT", "FUNCTION", "BOOL", "TRUE", "FALSE", "CREATE_INTERFACE", "REQUIRE_PLUGIN", 
-			"CREATE_MUTATOR", "CREATE_WEIGHTED_MUTATOR", "GENERATE", "GENERATE_WITH_MUTATORS", 
-			"ID", "INT", "FLOAT", "STRING", "SET", "PLUS", "MINUS", "TIMES", "DIVIDE", 
+			"MUTATOR_TYPE", "INTERFACE_TYPE", "FLOAT_TYPE", "ARRAY_TYPE", "IF", "ELSE", 
+			"WHILE", "PRINT", "FUNCTION", "BOOL", "TRUE", "FALSE", "CREATE_INTERFACE", 
+			"REQUIRE_PLUGIN", "CREATE_MUTATOR", "CREATE_WEIGHTED_MUTATOR", "GENERATE", 
+			"GENERATE_WITH_MUTATORS", "SET_DEFAULT", "CREATE_RANGE_MUTATOR", "ID", 
+			"INT", "FLOAT", "STRING", "SET", "PLUS", "MINUS", "TIMES", "DIVIDE", 
 			"GT", "GE", "LT", "LE", "EQ", "COMMA", "NE", "ASSIGN", "LPAREN", "RPAREN", 
 			"LBRACE", "RBRACE", "LSQRBRAKET", "RSQRBRAKET", "SEMICOLON", "COLON", 
-			"DOUBLEQUOTE", "COMMENT", "WS", "ARRAY_TYPE"
+			"DOUBLEQUOTE", "COMMENT", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -135,21 +139,21 @@ public class DataStructureGrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(29); 
+			setState(33); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(28);
+				setState(32);
 				syntax();
 				}
 				}
-				setState(31); 
+				setState(35); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOL_TYPE) | (1L << INT_TYPE) | (1L << STRING_TYPE) | (1L << JSONFILE_TYPE) | (1L << PATH_TYPE) | (1L << MUTATOR_TYPE) | (1L << INTERFACE_TYPE) | (1L << FLOAT_TYPE) | (1L << CREATE_INTERFACE) | (1L << REQUIRE_PLUGIN) | (1L << CREATE_MUTATOR) | (1L << CREATE_WEIGHTED_MUTATOR) | (1L << GENERATE) | (1L << GENERATE_WITH_MUTATORS) | (1L << ARRAY_TYPE))) != 0) );
-			setState(33);
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOL_TYPE) | (1L << INT_TYPE) | (1L << STRING_TYPE) | (1L << JSONFILE_TYPE) | (1L << PATH_TYPE) | (1L << MUTATOR_TYPE) | (1L << INTERFACE_TYPE) | (1L << FLOAT_TYPE) | (1L << ARRAY_TYPE) | (1L << CREATE_INTERFACE) | (1L << REQUIRE_PLUGIN) | (1L << CREATE_MUTATOR) | (1L << CREATE_WEIGHTED_MUTATOR) | (1L << GENERATE) | (1L << GENERATE_WITH_MUTATORS) | (1L << SET_DEFAULT) | (1L << CREATE_RANGE_MUTATOR))) != 0) );
+			setState(37);
 			match(EOF);
 			}
 		}
@@ -180,7 +184,7 @@ public class DataStructureGrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(35);
+			setState(39);
 			declaration();
 			}
 		}
@@ -215,7 +219,7 @@ public class DataStructureGrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(39);
+			setState(43);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case BOOL_TYPE:
@@ -228,7 +232,7 @@ public class DataStructureGrammarParser extends Parser {
 			case FLOAT_TYPE:
 			case ARRAY_TYPE:
 				{
-				setState(37);
+				setState(41);
 				variables();
 				}
 				break;
@@ -238,15 +242,17 @@ public class DataStructureGrammarParser extends Parser {
 			case CREATE_WEIGHTED_MUTATOR:
 			case GENERATE:
 			case GENERATE_WITH_MUTATORS:
+			case SET_DEFAULT:
+			case CREATE_RANGE_MUTATOR:
 				{
-				setState(38);
+				setState(42);
 				statements();
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(41);
+			setState(45);
 			match(SEMICOLON);
 			}
 		}
@@ -277,7 +283,7 @@ public class DataStructureGrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(43);
+			setState(47);
 			functions();
 			}
 		}
@@ -311,6 +317,12 @@ public class DataStructureGrammarParser extends Parser {
 		public GenerateWithMutatorsContext generateWithMutators() {
 			return getRuleContext(GenerateWithMutatorsContext.class,0);
 		}
+		public SetDefaultContext setDefault() {
+			return getRuleContext(SetDefaultContext.class,0);
+		}
+		public CreateRangeMutatorContext createRangeMutator() {
+			return getRuleContext(CreateRangeMutatorContext.class,0);
+		}
 		public FunctionsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -321,49 +333,63 @@ public class DataStructureGrammarParser extends Parser {
 		FunctionsContext _localctx = new FunctionsContext(_ctx, getState());
 		enterRule(_localctx, 8, RULE_functions);
 		try {
-			setState(51);
+			setState(57);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case CREATE_INTERFACE:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(45);
+				setState(49);
 				createInterface();
 				}
 				break;
 			case REQUIRE_PLUGIN:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(46);
+				setState(50);
 				requirePlugin();
 				}
 				break;
 			case CREATE_MUTATOR:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(47);
+				setState(51);
 				createMutator();
 				}
 				break;
 			case CREATE_WEIGHTED_MUTATOR:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(48);
+				setState(52);
 				createWeightedMutator();
 				}
 				break;
 			case GENERATE:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(49);
+				setState(53);
 				generate();
 				}
 				break;
 			case GENERATE_WITH_MUTATORS:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(50);
+				setState(54);
 				generateWithMutators();
+				}
+				break;
+			case SET_DEFAULT:
+				enterOuterAlt(_localctx, 7);
+				{
+				setState(55);
+				setDefault();
+				}
+				break;
+			case CREATE_RANGE_MUTATOR:
+				enterOuterAlt(_localctx, 8);
+				{
+				setState(56);
+				createRangeMutator();
 				}
 				break;
 			default:
@@ -407,35 +433,35 @@ public class DataStructureGrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(53);
+			setState(59);
 			match(LSQRBRAKET);
-			setState(62);
+			setState(68);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOL) | (1L << ID) | (1L << INT) | (1L << FLOAT) | (1L << STRING))) != 0)) {
 				{
-				setState(54);
+				setState(60);
 				any();
-				setState(59);
+				setState(65);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				while (_la==COMMA) {
 					{
 					{
-					setState(55);
+					setState(61);
 					match(COMMA);
-					setState(56);
+					setState(62);
 					any();
 					}
 					}
-					setState(61);
+					setState(67);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
 				}
 			}
 
-			setState(64);
+			setState(70);
 			match(RSQRBRAKET);
 			}
 		}
@@ -469,7 +495,7 @@ public class DataStructureGrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(66);
+			setState(72);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << BOOL) | (1L << ID) | (1L << INT) | (1L << FLOAT) | (1L << STRING))) != 0)) ) {
 			_errHandler.recoverInline(this);
@@ -512,6 +538,9 @@ public class DataStructureGrammarParser extends Parser {
 		public CreateWeightedMutatorContext createWeightedMutator() {
 			return getRuleContext(CreateWeightedMutatorContext.class,0);
 		}
+		public CreateRangeMutatorContext createRangeMutator() {
+			return getRuleContext(CreateRangeMutatorContext.class,0);
+		}
 		public TerminalNode INTERFACE_TYPE() { return getToken(DataStructureGrammarParser.INTERFACE_TYPE, 0); }
 		public CreateInterfaceContext createInterface() {
 			return getRuleContext(CreateInterfaceContext.class,0);
@@ -530,109 +559,115 @@ public class DataStructureGrammarParser extends Parser {
 		VariablesContext _localctx = new VariablesContext(_ctx, getState());
 		enterRule(_localctx, 14, RULE_variables);
 		try {
-			setState(107);
+			setState(114);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case STRING_TYPE:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(68);
+				setState(74);
 				match(STRING_TYPE);
-				setState(69);
+				setState(75);
 				match(ID);
-				setState(70);
+				setState(76);
 				match(SET);
-				setState(71);
+				setState(77);
 				match(STRING);
 				}
 				break;
 			case INT_TYPE:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(72);
+				setState(78);
 				match(INT_TYPE);
-				setState(73);
+				setState(79);
 				match(ID);
-				setState(74);
+				setState(80);
 				match(SET);
-				setState(75);
+				setState(81);
 				match(INT);
 				}
 				break;
 			case BOOL_TYPE:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(76);
+				setState(82);
 				match(BOOL_TYPE);
-				setState(77);
+				setState(83);
 				match(ID);
-				setState(78);
+				setState(84);
 				match(SET);
-				setState(79);
+				setState(85);
 				match(BOOL);
 				}
 				break;
 			case PATH_TYPE:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(80);
+				setState(86);
 				match(PATH_TYPE);
-				setState(81);
+				setState(87);
 				match(ID);
-				setState(82);
+				setState(88);
 				match(SET);
-				setState(83);
+				setState(89);
 				match(STRING);
 				}
 				break;
 			case JSONFILE_TYPE:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(84);
+				setState(90);
 				match(JSONFILE_TYPE);
-				setState(85);
+				setState(91);
 				match(ID);
-				setState(86);
+				setState(92);
 				match(SET);
-				setState(87);
+				setState(93);
 				match(STRING);
 				}
 				break;
 			case FLOAT_TYPE:
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(88);
+				setState(94);
 				match(FLOAT_TYPE);
-				setState(89);
+				setState(95);
 				match(ID);
-				setState(90);
+				setState(96);
 				match(SET);
-				setState(91);
+				setState(97);
 				match(FLOAT);
 				}
 				break;
 			case MUTATOR_TYPE:
 				enterOuterAlt(_localctx, 7);
 				{
-				setState(92);
+				setState(98);
 				match(MUTATOR_TYPE);
-				setState(93);
+				setState(99);
 				match(ID);
-				setState(94);
+				setState(100);
 				match(SET);
-				setState(97);
+				setState(104);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case CREATE_MUTATOR:
 					{
-					setState(95);
+					setState(101);
 					createMutator();
 					}
 					break;
 				case CREATE_WEIGHTED_MUTATOR:
 					{
-					setState(96);
+					setState(102);
 					createWeightedMutator();
+					}
+					break;
+				case CREATE_RANGE_MUTATOR:
+					{
+					setState(103);
+					createRangeMutator();
 					}
 					break;
 				default:
@@ -643,14 +678,14 @@ public class DataStructureGrammarParser extends Parser {
 			case INTERFACE_TYPE:
 				enterOuterAlt(_localctx, 8);
 				{
-				setState(99);
+				setState(106);
 				match(INTERFACE_TYPE);
-				setState(100);
+				setState(107);
 				match(ID);
-				setState(101);
+				setState(108);
 				match(SET);
 				{
-				setState(102);
+				setState(109);
 				createInterface();
 				}
 				}
@@ -658,13 +693,13 @@ public class DataStructureGrammarParser extends Parser {
 			case ARRAY_TYPE:
 				enterOuterAlt(_localctx, 9);
 				{
-				setState(103);
+				setState(110);
 				match(ARRAY_TYPE);
-				setState(104);
+				setState(111);
 				match(ID);
-				setState(105);
+				setState(112);
 				match(SET);
-				setState(106);
+				setState(113);
 				array();
 				}
 				break;
@@ -706,15 +741,15 @@ public class DataStructureGrammarParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(109);
+			setState(116);
 			match(CREATE_INTERFACE);
-			setState(110);
+			setState(117);
 			match(LPAREN);
-			setState(111);
+			setState(118);
 			match(STRING);
-			setState(112);
+			setState(119);
 			match(COMMA);
-			setState(113);
+			setState(120);
 			_la = _input.LA(1);
 			if ( !(_la==ID || _la==STRING) ) {
 			_errHandler.recoverInline(this);
@@ -724,7 +759,7 @@ public class DataStructureGrammarParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
-			setState(114);
+			setState(121);
 			match(RPAREN);
 			}
 		}
@@ -743,10 +778,7 @@ public class DataStructureGrammarParser extends Parser {
 		public TerminalNode CREATE_MUTATOR() { return getToken(DataStructureGrammarParser.CREATE_MUTATOR, 0); }
 		public TerminalNode LPAREN() { return getToken(DataStructureGrammarParser.LPAREN, 0); }
 		public TerminalNode STRING() { return getToken(DataStructureGrammarParser.STRING, 0); }
-		public TerminalNode COMMA() { return getToken(DataStructureGrammarParser.COMMA, 0); }
 		public TerminalNode RPAREN() { return getToken(DataStructureGrammarParser.RPAREN, 0); }
-		public TerminalNode FLOAT() { return getToken(DataStructureGrammarParser.FLOAT, 0); }
-		public TerminalNode ID() { return getToken(DataStructureGrammarParser.ID, 0); }
 		public CreateMutatorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -756,29 +788,54 @@ public class DataStructureGrammarParser extends Parser {
 	public final CreateMutatorContext createMutator() throws RecognitionException {
 		CreateMutatorContext _localctx = new CreateMutatorContext(_ctx, getState());
 		enterRule(_localctx, 18, RULE_createMutator);
-		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(116);
+			setState(123);
 			match(CREATE_MUTATOR);
-			setState(117);
+			setState(124);
 			match(LPAREN);
-			setState(118);
+			setState(125);
 			match(STRING);
-			setState(119);
-			match(COMMA);
-			setState(120);
-			_la = _input.LA(1);
-			if ( !(_la==ID || _la==FLOAT) ) {
-			_errHandler.recoverInline(this);
+			setState(126);
+			match(RPAREN);
 			}
-			else {
-				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
-				_errHandler.reportMatch(this);
-				consume();
-			}
-			setState(121);
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class CreateRangeMutatorContext extends ParserRuleContext {
+		public TerminalNode CREATE_RANGE_MUTATOR() { return getToken(DataStructureGrammarParser.CREATE_RANGE_MUTATOR, 0); }
+		public TerminalNode LPAREN() { return getToken(DataStructureGrammarParser.LPAREN, 0); }
+		public TerminalNode STRING() { return getToken(DataStructureGrammarParser.STRING, 0); }
+		public TerminalNode RPAREN() { return getToken(DataStructureGrammarParser.RPAREN, 0); }
+		public CreateRangeMutatorContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_createRangeMutator; }
+	}
+
+	public final CreateRangeMutatorContext createRangeMutator() throws RecognitionException {
+		CreateRangeMutatorContext _localctx = new CreateRangeMutatorContext(_ctx, getState());
+		enterRule(_localctx, 20, RULE_createRangeMutator);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(128);
+			match(CREATE_RANGE_MUTATOR);
+			setState(129);
+			match(LPAREN);
+			setState(130);
+			match(STRING);
+			setState(131);
 			match(RPAREN);
 			}
 		}
@@ -809,20 +866,20 @@ public class DataStructureGrammarParser extends Parser {
 
 	public final CreateWeightedMutatorContext createWeightedMutator() throws RecognitionException {
 		CreateWeightedMutatorContext _localctx = new CreateWeightedMutatorContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_createWeightedMutator);
+		enterRule(_localctx, 22, RULE_createWeightedMutator);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(123);
+			setState(133);
 			match(CREATE_WEIGHTED_MUTATOR);
-			setState(124);
+			setState(134);
 			match(LPAREN);
-			setState(125);
+			setState(135);
 			match(STRING);
-			setState(126);
+			setState(136);
 			match(COMMA);
-			setState(127);
+			setState(137);
 			_la = _input.LA(1);
 			if ( !(_la==ID || _la==FLOAT) ) {
 			_errHandler.recoverInline(this);
@@ -832,7 +889,7 @@ public class DataStructureGrammarParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
-			setState(128);
+			setState(138);
 			match(RPAREN);
 			}
 		}
@@ -863,16 +920,16 @@ public class DataStructureGrammarParser extends Parser {
 
 	public final GenerateContext generate() throws RecognitionException {
 		GenerateContext _localctx = new GenerateContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_generate);
+		enterRule(_localctx, 24, RULE_generate);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(130);
+			setState(140);
 			match(GENERATE);
-			setState(131);
+			setState(141);
 			match(LPAREN);
-			setState(132);
+			setState(142);
 			_la = _input.LA(1);
 			if ( !(_la==ID || _la==STRING) ) {
 			_errHandler.recoverInline(this);
@@ -882,11 +939,11 @@ public class DataStructureGrammarParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
-			setState(133);
+			setState(143);
 			match(COMMA);
-			setState(134);
+			setState(144);
 			match(INT);
-			setState(135);
+			setState(145);
 			match(RPAREN);
 			}
 		}
@@ -911,7 +968,10 @@ public class DataStructureGrammarParser extends Parser {
 		public ArrayContext array() {
 			return getRuleContext(ArrayContext.class,0);
 		}
-		public TerminalNode INT() { return getToken(DataStructureGrammarParser.INT, 0); }
+		public List<TerminalNode> INT() { return getTokens(DataStructureGrammarParser.INT); }
+		public TerminalNode INT(int i) {
+			return getToken(DataStructureGrammarParser.INT, i);
+		}
 		public TerminalNode RPAREN() { return getToken(DataStructureGrammarParser.RPAREN, 0); }
 		public TerminalNode STRING() { return getToken(DataStructureGrammarParser.STRING, 0); }
 		public TerminalNode ID() { return getToken(DataStructureGrammarParser.ID, 0); }
@@ -923,16 +983,16 @@ public class DataStructureGrammarParser extends Parser {
 
 	public final GenerateWithMutatorsContext generateWithMutators() throws RecognitionException {
 		GenerateWithMutatorsContext _localctx = new GenerateWithMutatorsContext(_ctx, getState());
-		enterRule(_localctx, 24, RULE_generateWithMutators);
+		enterRule(_localctx, 26, RULE_generateWithMutators);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(137);
+			setState(147);
 			match(GENERATE_WITH_MUTATORS);
-			setState(138);
+			setState(148);
 			match(LPAREN);
-			setState(139);
+			setState(149);
 			_la = _input.LA(1);
 			if ( !(_la==ID || _la==STRING) ) {
 			_errHandler.recoverInline(this);
@@ -942,15 +1002,23 @@ public class DataStructureGrammarParser extends Parser {
 				_errHandler.reportMatch(this);
 				consume();
 			}
-			setState(140);
+			setState(150);
 			match(COMMA);
-			setState(141);
+			setState(151);
 			array();
-			setState(142);
+			setState(152);
 			match(COMMA);
-			setState(143);
+			setState(153);
 			match(INT);
-			setState(144);
+			setState(154);
+			match(COMMA);
+			setState(155);
+			match(INT);
+			setState(156);
+			match(COMMA);
+			setState(157);
+			match(INT);
+			setState(158);
 			match(RPAREN);
 			}
 		}
@@ -978,17 +1046,63 @@ public class DataStructureGrammarParser extends Parser {
 
 	public final RequirePluginContext requirePlugin() throws RecognitionException {
 		RequirePluginContext _localctx = new RequirePluginContext(_ctx, getState());
-		enterRule(_localctx, 26, RULE_requirePlugin);
+		enterRule(_localctx, 28, RULE_requirePlugin);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(146);
+			setState(160);
 			match(REQUIRE_PLUGIN);
-			setState(147);
+			setState(161);
 			match(LPAREN);
-			setState(148);
+			setState(162);
 			match(STRING);
-			setState(149);
+			setState(163);
+			match(RPAREN);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class SetDefaultContext extends ParserRuleContext {
+		public TerminalNode SET_DEFAULT() { return getToken(DataStructureGrammarParser.SET_DEFAULT, 0); }
+		public TerminalNode LPAREN() { return getToken(DataStructureGrammarParser.LPAREN, 0); }
+		public TerminalNode STRING() { return getToken(DataStructureGrammarParser.STRING, 0); }
+		public TerminalNode COMMA() { return getToken(DataStructureGrammarParser.COMMA, 0); }
+		public ArrayContext array() {
+			return getRuleContext(ArrayContext.class,0);
+		}
+		public TerminalNode RPAREN() { return getToken(DataStructureGrammarParser.RPAREN, 0); }
+		public SetDefaultContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_setDefault; }
+	}
+
+	public final SetDefaultContext setDefault() throws RecognitionException {
+		SetDefaultContext _localctx = new SetDefaultContext(_ctx, getState());
+		enterRule(_localctx, 30, RULE_setDefault);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(165);
+			match(SET_DEFAULT);
+			setState(166);
+			match(LPAREN);
+			setState(167);
+			match(STRING);
+			setState(168);
+			match(COMMA);
+			setState(169);
+			array();
+			setState(170);
 			match(RPAREN);
 			}
 		}
@@ -1004,46 +1118,53 @@ public class DataStructureGrammarParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\65\u009a\4\2\t\2"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\67\u00af\4\2\t\2"+
 		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
-		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\3\2\6\2 \n\2\r\2\16\2!\3\2\3"+
-		"\2\3\3\3\3\3\4\3\4\5\4*\n\4\3\4\3\4\3\5\3\5\3\6\3\6\3\6\3\6\3\6\3\6\5"+
-		"\6\66\n\6\3\7\3\7\3\7\3\7\7\7<\n\7\f\7\16\7?\13\7\5\7A\n\7\3\7\3\7\3\b"+
-		"\3\b\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3"+
-		"\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\5\td\n\t\3\t\3\t\3"+
-		"\t\3\t\3\t\3\t\3\t\3\t\5\tn\n\t\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\13\3\13"+
-		"\3\13\3\13\3\13\3\13\3\13\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\r\3\r\3\r\3\r"+
-		"\3\r\3\r\3\r\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\17\3\17\3"+
-		"\17\3\17\3\17\3\17\2\2\20\2\4\6\b\n\f\16\20\22\24\26\30\32\34\2\5\4\2"+
-		"\20\20\31\34\4\2\31\31\34\34\4\2\31\31\33\33\2\u009d\2\37\3\2\2\2\4%\3"+
-		"\2\2\2\6)\3\2\2\2\b-\3\2\2\2\n\65\3\2\2\2\f\67\3\2\2\2\16D\3\2\2\2\20"+
-		"m\3\2\2\2\22o\3\2\2\2\24v\3\2\2\2\26}\3\2\2\2\30\u0084\3\2\2\2\32\u008b"+
-		"\3\2\2\2\34\u0094\3\2\2\2\36 \5\4\3\2\37\36\3\2\2\2 !\3\2\2\2!\37\3\2"+
-		"\2\2!\"\3\2\2\2\"#\3\2\2\2#$\7\2\2\3$\3\3\2\2\2%&\5\6\4\2&\5\3\2\2\2\'"+
-		"*\5\20\t\2(*\5\b\5\2)\'\3\2\2\2)(\3\2\2\2*+\3\2\2\2+,\7\60\2\2,\7\3\2"+
-		"\2\2-.\5\n\6\2.\t\3\2\2\2/\66\5\22\n\2\60\66\5\34\17\2\61\66\5\24\13\2"+
-		"\62\66\5\26\f\2\63\66\5\30\r\2\64\66\5\32\16\2\65/\3\2\2\2\65\60\3\2\2"+
-		"\2\65\61\3\2\2\2\65\62\3\2\2\2\65\63\3\2\2\2\65\64\3\2\2\2\66\13\3\2\2"+
-		"\2\67@\7.\2\28=\5\16\b\29:\7\'\2\2:<\5\16\b\2;9\3\2\2\2<?\3\2\2\2=;\3"+
-		"\2\2\2=>\3\2\2\2>A\3\2\2\2?=\3\2\2\2@8\3\2\2\2@A\3\2\2\2AB\3\2\2\2BC\7"+
-		"/\2\2C\r\3\2\2\2DE\t\2\2\2E\17\3\2\2\2FG\7\5\2\2GH\7\31\2\2HI\7\35\2\2"+
-		"In\7\34\2\2JK\7\4\2\2KL\7\31\2\2LM\7\35\2\2Mn\7\32\2\2NO\7\3\2\2OP\7\31"+
-		"\2\2PQ\7\35\2\2Qn\7\20\2\2RS\7\7\2\2ST\7\31\2\2TU\7\35\2\2Un\7\34\2\2"+
-		"VW\7\6\2\2WX\7\31\2\2XY\7\35\2\2Yn\7\34\2\2Z[\7\n\2\2[\\\7\31\2\2\\]\7"+
-		"\35\2\2]n\7\33\2\2^_\7\b\2\2_`\7\31\2\2`c\7\35\2\2ad\5\24\13\2bd\5\26"+
-		"\f\2ca\3\2\2\2cb\3\2\2\2dn\3\2\2\2ef\7\t\2\2fg\7\31\2\2gh\7\35\2\2hn\5"+
-		"\22\n\2ij\7\65\2\2jk\7\31\2\2kl\7\35\2\2ln\5\f\7\2mF\3\2\2\2mJ\3\2\2\2"+
-		"mN\3\2\2\2mR\3\2\2\2mV\3\2\2\2mZ\3\2\2\2m^\3\2\2\2me\3\2\2\2mi\3\2\2\2"+
-		"n\21\3\2\2\2op\7\23\2\2pq\7*\2\2qr\7\34\2\2rs\7\'\2\2st\t\3\2\2tu\7+\2"+
-		"\2u\23\3\2\2\2vw\7\25\2\2wx\7*\2\2xy\7\34\2\2yz\7\'\2\2z{\t\4\2\2{|\7"+
-		"+\2\2|\25\3\2\2\2}~\7\26\2\2~\177\7*\2\2\177\u0080\7\34\2\2\u0080\u0081"+
-		"\7\'\2\2\u0081\u0082\t\4\2\2\u0082\u0083\7+\2\2\u0083\27\3\2\2\2\u0084"+
-		"\u0085\7\27\2\2\u0085\u0086\7*\2\2\u0086\u0087\t\3\2\2\u0087\u0088\7\'"+
-		"\2\2\u0088\u0089\7\32\2\2\u0089\u008a\7+\2\2\u008a\31\3\2\2\2\u008b\u008c"+
-		"\7\30\2\2\u008c\u008d\7*\2\2\u008d\u008e\t\3\2\2\u008e\u008f\7\'\2\2\u008f"+
-		"\u0090\5\f\7\2\u0090\u0091\7\'\2\2\u0091\u0092\7\32\2\2\u0092\u0093\7"+
-		"+\2\2\u0093\33\3\2\2\2\u0094\u0095\7\24\2\2\u0095\u0096\7*\2\2\u0096\u0097"+
-		"\7\34\2\2\u0097\u0098\7+\2\2\u0098\35\3\2\2\2\t!)\65=@cm";
+		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\3\2\6\2"+
+		"$\n\2\r\2\16\2%\3\2\3\2\3\3\3\3\3\4\3\4\5\4.\n\4\3\4\3\4\3\5\3\5\3\6\3"+
+		"\6\3\6\3\6\3\6\3\6\3\6\3\6\5\6<\n\6\3\7\3\7\3\7\3\7\7\7B\n\7\f\7\16\7"+
+		"E\13\7\5\7G\n\7\3\7\3\7\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3"+
+		"\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t"+
+		"\3\t\3\t\3\t\5\tk\n\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\3\t\5\tu\n\t\3\n\3\n"+
+		"\3\n\3\n\3\n\3\n\3\n\3\13\3\13\3\13\3\13\3\13\3\f\3\f\3\f\3\f\3\f\3\r"+
+		"\3\r\3\r\3\r\3\r\3\r\3\r\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\17\3\17"+
+		"\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\20\3\20\3\20"+
+		"\3\20\3\20\3\21\3\21\3\21\3\21\3\21\3\21\3\21\3\21\2\2\22\2\4\6\b\n\f"+
+		"\16\20\22\24\26\30\32\34\36 \2\5\4\2\21\21\34\37\4\2\34\34\37\37\4\2\34"+
+		"\34\36\36\2\u00b3\2#\3\2\2\2\4)\3\2\2\2\6-\3\2\2\2\b\61\3\2\2\2\n;\3\2"+
+		"\2\2\f=\3\2\2\2\16J\3\2\2\2\20t\3\2\2\2\22v\3\2\2\2\24}\3\2\2\2\26\u0082"+
+		"\3\2\2\2\30\u0087\3\2\2\2\32\u008e\3\2\2\2\34\u0095\3\2\2\2\36\u00a2\3"+
+		"\2\2\2 \u00a7\3\2\2\2\"$\5\4\3\2#\"\3\2\2\2$%\3\2\2\2%#\3\2\2\2%&\3\2"+
+		"\2\2&\'\3\2\2\2\'(\7\2\2\3(\3\3\2\2\2)*\5\6\4\2*\5\3\2\2\2+.\5\20\t\2"+
+		",.\5\b\5\2-+\3\2\2\2-,\3\2\2\2./\3\2\2\2/\60\7\63\2\2\60\7\3\2\2\2\61"+
+		"\62\5\n\6\2\62\t\3\2\2\2\63<\5\22\n\2\64<\5\36\20\2\65<\5\24\13\2\66<"+
+		"\5\30\r\2\67<\5\32\16\28<\5\34\17\29<\5 \21\2:<\5\26\f\2;\63\3\2\2\2;"+
+		"\64\3\2\2\2;\65\3\2\2\2;\66\3\2\2\2;\67\3\2\2\2;8\3\2\2\2;9\3\2\2\2;:"+
+		"\3\2\2\2<\13\3\2\2\2=F\7\61\2\2>C\5\16\b\2?@\7*\2\2@B\5\16\b\2A?\3\2\2"+
+		"\2BE\3\2\2\2CA\3\2\2\2CD\3\2\2\2DG\3\2\2\2EC\3\2\2\2F>\3\2\2\2FG\3\2\2"+
+		"\2GH\3\2\2\2HI\7\62\2\2I\r\3\2\2\2JK\t\2\2\2K\17\3\2\2\2LM\7\5\2\2MN\7"+
+		"\34\2\2NO\7 \2\2Ou\7\37\2\2PQ\7\4\2\2QR\7\34\2\2RS\7 \2\2Su\7\35\2\2T"+
+		"U\7\3\2\2UV\7\34\2\2VW\7 \2\2Wu\7\21\2\2XY\7\7\2\2YZ\7\34\2\2Z[\7 \2\2"+
+		"[u\7\37\2\2\\]\7\6\2\2]^\7\34\2\2^_\7 \2\2_u\7\37\2\2`a\7\n\2\2ab\7\34"+
+		"\2\2bc\7 \2\2cu\7\36\2\2de\7\b\2\2ef\7\34\2\2fj\7 \2\2gk\5\24\13\2hk\5"+
+		"\30\r\2ik\5\26\f\2jg\3\2\2\2jh\3\2\2\2ji\3\2\2\2ku\3\2\2\2lm\7\t\2\2m"+
+		"n\7\34\2\2no\7 \2\2ou\5\22\n\2pq\7\13\2\2qr\7\34\2\2rs\7 \2\2su\5\f\7"+
+		"\2tL\3\2\2\2tP\3\2\2\2tT\3\2\2\2tX\3\2\2\2t\\\3\2\2\2t`\3\2\2\2td\3\2"+
+		"\2\2tl\3\2\2\2tp\3\2\2\2u\21\3\2\2\2vw\7\24\2\2wx\7-\2\2xy\7\37\2\2yz"+
+		"\7*\2\2z{\t\3\2\2{|\7.\2\2|\23\3\2\2\2}~\7\26\2\2~\177\7-\2\2\177\u0080"+
+		"\7\37\2\2\u0080\u0081\7.\2\2\u0081\25\3\2\2\2\u0082\u0083\7\33\2\2\u0083"+
+		"\u0084\7-\2\2\u0084\u0085\7\37\2\2\u0085\u0086\7.\2\2\u0086\27\3\2\2\2"+
+		"\u0087\u0088\7\27\2\2\u0088\u0089\7-\2\2\u0089\u008a\7\37\2\2\u008a\u008b"+
+		"\7*\2\2\u008b\u008c\t\4\2\2\u008c\u008d\7.\2\2\u008d\31\3\2\2\2\u008e"+
+		"\u008f\7\30\2\2\u008f\u0090\7-\2\2\u0090\u0091\t\3\2\2\u0091\u0092\7*"+
+		"\2\2\u0092\u0093\7\35\2\2\u0093\u0094\7.\2\2\u0094\33\3\2\2\2\u0095\u0096"+
+		"\7\31\2\2\u0096\u0097\7-\2\2\u0097\u0098\t\3\2\2\u0098\u0099\7*\2\2\u0099"+
+		"\u009a\5\f\7\2\u009a\u009b\7*\2\2\u009b\u009c\7\35\2\2\u009c\u009d\7*"+
+		"\2\2\u009d\u009e\7\35\2\2\u009e\u009f\7*\2\2\u009f\u00a0\7\35\2\2\u00a0"+
+		"\u00a1\7.\2\2\u00a1\35\3\2\2\2\u00a2\u00a3\7\25\2\2\u00a3\u00a4\7-\2\2"+
+		"\u00a4\u00a5\7\37\2\2\u00a5\u00a6\7.\2\2\u00a6\37\3\2\2\2\u00a7\u00a8"+
+		"\7\32\2\2\u00a8\u00a9\7-\2\2\u00a9\u00aa\7\37\2\2\u00aa\u00ab\7*\2\2\u00ab"+
+		"\u00ac\5\f\7\2\u00ac\u00ad\7.\2\2\u00ad!\3\2\2\2\t%-;CFjt";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {
