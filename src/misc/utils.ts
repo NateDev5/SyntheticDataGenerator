@@ -1,6 +1,8 @@
 import path from "path";
 import { Variable, FunctionValue, VariableType } from "./types.js";
 import { ParserRuleContext } from "antlr4";
+import { MissingParameterError } from "./errors.js";
+import chalk from "chalk";
 
 class Utils {
     public static IsFilePath(value: string): boolean {
@@ -49,7 +51,6 @@ class Utils {
     public static ArrayHas(array: any[], value: any): boolean {
         return array.find(v => v == value) ? true : false;
     }
-
 
     public static ArrayFind(array: any[], value: any): any {
         return array.find(v => v == value);
@@ -108,8 +109,13 @@ class Utils {
     }
 
     public static GetFunctionParam(index: number, ctx: ParserRuleContext): string {
-        if (index == 1) return ctx.getChild(2).getText() ?? "null";
-        return ctx.getChild(index + index).getText() ?? "null";
+        try {
+            if (index == 1) return ctx.getChild(2).getText() ?? "null";
+            return ctx.getChild(index + index).getText() ?? "null";
+        }
+        catch (err) {
+            throw new MissingParameterError(`Missing parameter(s) at "${this.Overline(ctx.getText())}"`);
+        }
     }
 
     public static ArrayLast(array: any[]): any {
@@ -121,7 +127,7 @@ class Utils {
     }
 
 
-    public static IsValidVariable (_value: VariableType, _type: VariableType): boolean {
+    public static IsValidVariable(_value: VariableType, _type: VariableType): boolean {
         return this.GetEnumValue(VariableType, _value) == _type;
     }
 
@@ -129,6 +135,10 @@ class Utils {
         let jsonData = JSON.parse(json);
         let [objName, propName] = variable.split('.');
         return jsonData.hasOwnProperty(objName) && jsonData[objName].hasOwnProperty(propName);
+    }
+    
+    public static Overline(value: string): string {
+        return chalk.blueBright(value);
     }
 }
 

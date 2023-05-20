@@ -60,7 +60,8 @@ export interface Function {
 
 export interface FunctionValue {
     type: VariableType,
-    value: any
+    value: any,
+    index: number
 }
 
 export interface FunctionVariable extends Variable {

@@ -303,6 +303,7 @@ GENERATE ("Example", 10)
 
 ### **Script Example**
 - ```Person.json```:
+```json
 {
     "FirstName": "string",
     "LastName": "string",
@@ -312,7 +313,6 @@ GENERATE ("Example", 10)
     "EyeColor": "enum(Blue,Green,Brown,Hazel)",
     "Height": "float"
 }
-```json
 ```
 
 - ```person_generator.ds```:

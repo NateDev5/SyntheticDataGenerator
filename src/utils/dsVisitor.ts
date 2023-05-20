@@ -32,34 +32,36 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         if(id == undefined || id) others.push(VariableType.identifier);
         others.push(type);
 
-        let result: (Variable | FunctionValue) = { type: VariableType.undefined, value: _value };
+        let index = this.functions.length;
+
+        let result: (Variable | FunctionValue) = { type: VariableType.undefined, value: _value, index: index };
 
         others.forEach(_type => {
             switch (_type) {
                 case VariableType.STRING_TYPE:
                     if (Utils.IsString(_value))
-                        result = ({ type: VariableType.STRING_TYPE, value: Utils.TrimString(_value) })
+                        result = ({ type: VariableType.STRING_TYPE, value: Utils.TrimString(_value), index: index })
                     break;
                 case VariableType.JSONFILE_TYPE:
                     if (Utils.IsString(_value) && Utils.IsValidJSONFile(_value))
-                        result = { type: VariableType.JSONFILE_TYPE, value: Utils.TrimString(_value) }
+                        result = { type: VariableType.JSONFILE_TYPE, value: Utils.TrimString(_value), index: index }
                     break;
                 case VariableType.INT_TYPE:
                     if(Utils.IsInt(_value))
-                        result = { type: VariableType.INT_TYPE, value: parseInt(_value) }
+                        result = { type: VariableType.INT_TYPE, value: parseInt(_value), index: index }
                     break;
                 case VariableType.FLOAT_TYPE:
                     if (Utils.IsFloat(_value))
-                        result = ({ type: VariableType.FLOAT_TYPE, value: parseFloat(_value) })
+                        result = ({ type: VariableType.FLOAT_TYPE, value: parseFloat(_value), index: index })
                     break;
                 case VariableType.BOOL_TYPE:
                     if(Utils.IsBool(_value))
-                        result = ({ type: VariableType.BOOL_TYPE, value: Utils.BoolFromText(_value) })
+                        result = ({ type: VariableType.BOOL_TYPE, value: Utils.BoolFromText(_value), index: index })
                     break;
                 case VariableType.identifier:
                     if (Utils.HasVariable(this.variables, _value)) {
                         let _var: (Variable | FunctionValue | false) = Utils.FindVariableById(this.variables, _value);
-                        if (_var == false) _var = { type: VariableType.variable_name, value: _value }
+                        if (_var == false) _var = { type: VariableType.variable_name, value: _value, index: index }
                         else (_var as FunctionVariable).index = Utils.ArrayGetIndex(this.variables, _var);
                         result = _var;
                     }
@@ -126,10 +128,10 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
                 _value = Utils.IsFilePath(Utils.TrimString(_value)) ? _value : VariableError[VariableError.InvalidPath];
                 break;
             case VariableType.INTERFACE_TYPE:
-                _value = { type: VariableType.function, value: _value.split("(")[0] } as FunctionValue;
+                _value = { type: VariableType.function, value: _value.split("(")[0], index: this.functions.length } as FunctionValue;
                 break;
             case VariableType.MUTATOR_TYPE:
-                _value = { type: VariableType.function, value: _value.split("(")[0] } as FunctionValue;
+                _value = { type: VariableType.function, value: _value.split("(")[0], index: this.functions.length } as FunctionValue;
                 break;
             case VariableType.FLOAT_TYPE:
                 _value = parseFloat(_value) ?? VariableError[VariableError.NotAFloat];
@@ -231,12 +233,16 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _param1: string = Utils.GetFunctionParam(1, ctx);
         let _param2: string = Utils.GetFunctionParam(2, ctx);
         let _param3: string = Utils.GetFunctionParam(3, ctx);
+        let _param4: string = Utils.GetFunctionParam(4, ctx);
+        let _param5: string = Utils.GetFunctionParam(5, ctx);
         _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
         _values.push(this.convertValue(`array_${_param2
         .replaceAll(('['), '')
         .replaceAll((']'), '')
         .split(",")[0]}`, VariableType.array));
         _values.push(this.convertValue(_param3, VariableType.INT_TYPE));
+        _values.push(this.convertValue(_param4, VariableType.INT_TYPE));
+        _values.push(this.convertValue(_param5, VariableType.INT_TYPE));
         this.functions.push({ function: _function, values: _values });
         this.logVerbose("Function pushed " + _function)
     }

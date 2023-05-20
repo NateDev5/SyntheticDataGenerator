@@ -18,9 +18,11 @@ export interface RangeMutator extends Mutator {
 }
 
 export class SyntheticDataGenerator {
-    constructor(protected _elements: any[] = [],
-        protected _generated_elements: any[] = []) {
-
+    protected _elements: any[];
+    protected _generated_elements: any[];
+    constructor() {
+        this._elements = [];
+        this._generated_elements = [];
     }
 
     /**
@@ -41,13 +43,16 @@ export class SyntheticDataGenerator {
      * @param couples number
      * @returns 
      */
-    protected _GenerateWithMutator (file: string | Interface, mutators: Mutator[], couples: number): any {
+    protected _GenerateWithMutator (file: string | Interface, mutators: Mutator[], couples: number, children: number, steps: number): any {
+        let _elements = Object.keys(file);
+        console.log(file)
+        for (const el in _elements) {
+            console.log(el);
+            //out[el] = ""
+        }
+    
         for (let i = 0; i < couples; i++) {
             let out = {};
-            let _elements = Object.values(file);
-            for (const el in _elements) {
-                out[el] = ""
-            }
         }
         return this._elements;
     }
@@ -58,7 +63,6 @@ export class SyntheticDataGenerator {
      * @param _enum enum
      */
     protected _WeightedMutator (_parent1: any, _parent2: any, _enum: any): any {
-
     }
 
     private _export () {

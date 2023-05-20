@@ -9,7 +9,7 @@ export class SyntaxBuilder {
             if(k == KeyType.enum) k = `${name}_${s}_enum`;
             _data.push(`${s}: ${k}`);
         })
-        return `export interface ${name} { ${_data.join(",")} }`;
+        return `export interface ${name} extends Interface { ${_data.join(",")} }`;
     }
 
     public static BuildEnum(name: string, data: string[]): string {

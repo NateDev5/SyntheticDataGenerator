@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, read, readFileSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, read, readFileSync, unlink, unlinkSync, writeFileSync } from "fs";
 import { Debug, Severity } from "../misc/debug.js";
 import { InterpreterResult, Interpreter } from "./interpreter.js";
-import { AvailablePlugins, DefaultFunctions, FunctionValue, KeyType, Sources, Variable, VariableType } from "../misc/types.js";
+import { AvailablePlugins, DefaultFunctions, FunctionValue, FunctionVariable, KeyType, Sources, Variable, VariableType } from "../misc/types.js";
 import Utils from "../misc/utils.js";
 import { SyntaxBuilder } from "./syntaxBuilder.js";
 import { BaseTemplate, Tags, ParamTag, GenerateTemplate, GenerateWithMutatorsTemplate } from "./template.js";
@@ -9,8 +9,10 @@ import path from "path";
 import moment from "moment";
 import chalk from "chalk";
 import { Interface } from "../data_generator/SyntheticDataGenerator.js";
+import { exec, execSync } from "child_process";
 
 const exportPath = "./dist/bin"
+const buildCommand = `tsc <FILE_PATH> --outDir ${path.resolve(exportPath)} --target "ESNext" --sourceMap true --allowJs true --resolveJsonModule true --esModuleInterop true --moduleResolution "nodenext"`;
 
 export class Builder {
     private filePath: string;
@@ -113,12 +115,17 @@ export class Builder {
                     })
                     this.out = this.out.replace(Tags.startPoint, `p.GenerateWithMutators`);
                     //${startPoint.values[0].value}${Utils.Capitalize((startPoint.values[1].value as any[])[0].id)}_mutator
-                    this.out = this.out.replace(Tags.startPointValues, `"${startPoint.values[0].value}", [${array.join(",")}], ${startPoint.values[2].value}`)
+                    //this.log(JSON.stringify((startPoint.values[0].value)));
+                    // Interface
+                    //this.log(JSON.stringify(result.funcs[((startPoint.values[0] as Variable).value as FunctionVariable).index].values[1]));
+                    //let jsonFile = this.functions.find(f => f.)
+                    this.log(startPoint.values[0].value)
+                    this.out = this.out.replace(Tags.startPointValues, `"${startPoint.values[0].value}", [${array.join(",")}], ${startPoint.values[2].value}, ${startPoint.values[3].value}, ${startPoint.values[4].value}`)
                     break;
             }
         }
         catch (err) {
-            console.log(err)
+            //console.log(err)
             this.failed = true;
             Debug.WriteLine(err, Severity.Error, Sources.Builder);
             Debug.WriteLine("Building operation aborted", Severity.FatalError, Sources.Builder);
@@ -127,7 +134,15 @@ export class Builder {
             if (!this.failed) {
                 const outputPath: string = `${exportPath}/${Utils.GetFileName(this.filePath)}.sdg.ts`;
                 writeFileSync(outputPath, this.out);
-                this.log("Script successfully built : " + path.resolve(outputPath));
+                exec(buildCommand.replace("<FILE_PATH>", path.resolve(outputPath)), (err) => {
+                    unlinkSync(outputPath);
+                    if(err != null) {
+                        Debug.WriteLine(err, Severity.FatalError, Sources.Builder);
+                        Debug.WriteLine("Building operation aborted", Severity.FatalError, Sources.Builder);
+                        return;
+                    }
+                })
+                this.log("Script successfully built : " + path.resolve(outputPath.replace(".ts", ".js")));
             }
         }
     }
