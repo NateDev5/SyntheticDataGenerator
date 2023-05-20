@@ -1,4 +1,4 @@
-import { Parser, ParserRuleContext, RecognitionException } from "antlr4";
+import { Parser, ParserRuleContext, RecognitionException, Token } from "antlr4";
 import { AnyContext, ArrayContext, CreateInterfaceContext, CreateMutatorContext, CreateRangeMutatorContext, CreateWeightedMutatorContext, DeclarationContext, FunctionsContext, GenerateContext, GenerateWithMutatorsContext, ProgramContext, RequirePluginContext, SetDefaultContext, StatementsContext, SyntaxContext, VariablesContext } from "../grammar/DataStructureGrammarParser.js";
 import DataStructureGrammarParserVisitor from "../grammar/DataStructureGrammarParserVisitor.js";
 import Utils from "../misc/utils.js";
@@ -25,7 +25,7 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         for (let i = 0; i < ctx.getChildCount(); i++) this.visit(ctx.getChild(i))
     }
 
-    private convertValue(_value: any, type: VariableType, others?: VariableType[], id?: boolean | undefined): any {
+    private convertValue(_value: any, type: VariableType, line: number, others?: VariableType[], id?: boolean | undefined): any {
         this.logVerbose("Converting value " + _value)
 
         if(others == null) others = [];
@@ -40,30 +40,31 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
             switch (_type) {
                 case VariableType.STRING_TYPE:
                     if (Utils.IsString(_value))
-                        result = ({ type: VariableType.STRING_TYPE, value: Utils.TrimString(_value), index: index })
+                        result = ({ type: VariableType.STRING_TYPE, value: Utils.TrimString(_value), index: index, line: line })
                     break;
                 case VariableType.JSONFILE_TYPE:
                     if (Utils.IsString(_value) && Utils.IsValidJSONFile(_value))
-                        result = { type: VariableType.JSONFILE_TYPE, value: Utils.TrimString(_value), index: index }
+                        result = { type: VariableType.JSONFILE_TYPE, value: Utils.TrimString(_value), index: index, line: line }
                     break;
                 case VariableType.INT_TYPE:
                     if(Utils.IsInt(_value))
-                        result = { type: VariableType.INT_TYPE, value: parseInt(_value), index: index }
+                        result = { type: VariableType.INT_TYPE, value: parseInt(_value), index: index, line: line }
                     break;
                 case VariableType.FLOAT_TYPE:
                     if (Utils.IsFloat(_value))
-                        result = ({ type: VariableType.FLOAT_TYPE, value: parseFloat(_value), index: index })
+                        result = ({ type: VariableType.FLOAT_TYPE, value: parseFloat(_value), index: index, line: line })
                     break;
                 case VariableType.BOOL_TYPE:
                     if(Utils.IsBool(_value))
-                        result = ({ type: VariableType.BOOL_TYPE, value: Utils.BoolFromText(_value), index: index })
+                        result = ({ type: VariableType.BOOL_TYPE, value: Utils.BoolFromText(_value), index: index, line: line })
                     break;
                 case VariableType.identifier:
                     if (Utils.HasVariable(this.variables, _value)) {
                         let _var: (Variable | FunctionValue | false) = Utils.FindVariableById(this.variables, _value);
-                        if (_var == false) _var = { type: VariableType.variable_name, value: _value, index: index }
+                        if (_var == false) _var = { type: VariableType.variable_name, value: _value, index: index, line: line }
                         else (_var as FunctionVariable).index = Utils.ArrayGetIndex(this.variables, _var);
-                        result = _var;
+
+                        if(_var) result = _var;
                     }
                     break;
                 default:
@@ -146,7 +147,7 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
             default:
                 break;
         }
-        this.variables.push({ type: Utils.GetEnumNameFromValue(VariableType, _type) as VariableType, id: _id, num: ctx.ruleIndex, value: _value });
+        this.variables.push({ type: Utils.GetEnumNameFromValue(VariableType, _type) as VariableType, id: _id, num: ctx.ruleIndex, value: _value, line: Utils.GetLine(ctx) });
         this.logVerbose("Variable pushed " + _type + " " + _id)
         this.visitNext(ctx);
     }
@@ -170,9 +171,9 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _values: (FunctionValue | Variable)[] = [];
         let _param1: string = Utils.GetFunctionParam(1, ctx);
         let _param2: string = Utils.GetFunctionParam(2, ctx);
-        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
-        _values.push(this.convertValue(_param2, VariableType.JSONFILE_TYPE));
-        this.functions.push({ function: _function, values: _values });
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE, Utils.GetLine(ctx)));
+        _values.push(this.convertValue(_param2, VariableType.JSONFILE_TYPE, Utils.GetLine(ctx)));
+        this.functions.push({ function: _function, values: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Function pushed " + _function)
     }
 
@@ -182,8 +183,8 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         const _function: DefaultFunctions = DefaultFunctions.REQUIRE_PLUGIN;
         let _values: (FunctionValue | Variable)[] = [];
         let _param1: string = Utils.GetFunctionParam(1, ctx);
-        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
-        this.functions.push({ function: _function, values: _values });
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE, Utils.GetLine(ctx)));
+        this.functions.push({ function: _function, values: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Function pushed " + _function)
     }
 
@@ -194,9 +195,9 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _values: (FunctionValue | Variable)[] = [];
         let _param1: string = Utils.GetFunctionParam(1, ctx);
         let _param2: string = Utils.GetFunctionParam(2, ctx);
-        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
-        _values.push(this.convertValue(_param2, VariableType.FLOAT_TYPE));
-        this.functions.push({ function: _function, values: _values });
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE, Utils.GetLine(ctx)));
+        _values.push(this.convertValue(_param2, VariableType.FLOAT_TYPE, Utils.GetLine(ctx)));
+        this.functions.push({ function: _function, values: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Function pushed " + _function)
     }
     visitCreateWeightedMutator: ((ctx: CreateWeightedMutatorContext) => any) = (ctx: CreateWeightedMutatorContext) => {
@@ -206,9 +207,9 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _values: (FunctionValue | Variable)[] = [];
         let _param1: string = Utils.GetFunctionParam(1, ctx);
         let _param2: string = Utils.GetFunctionParam(2, ctx);
-        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
-        _values.push(this.convertValue(_param2, VariableType.FLOAT_TYPE));
-        this.functions.push({ function: _function, values: _values });
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE, Utils.GetLine(ctx)));
+        _values.push(this.convertValue(_param2, VariableType.FLOAT_TYPE, Utils.GetLine(ctx)));
+        this.functions.push({ function: _function, values: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Function pushed " + _function)
     }
 
@@ -219,9 +220,9 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _values: (FunctionValue | Variable)[] = [];
         let _param1: string = Utils.GetFunctionParam(1, ctx);
         let _param2: string = Utils.GetFunctionParam(2, ctx);
-        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
-        _values.push(this.convertValue(_param2, VariableType.INT_TYPE));
-        this.functions.push({ function: _function, values: _values });
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE, Utils.GetLine(ctx)));
+        _values.push(this.convertValue(_param2, VariableType.INT_TYPE, Utils.GetLine(ctx)));
+        this.functions.push({ function: _function, values: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Function pushed " + _function)
     }
 
@@ -235,15 +236,15 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _param3: string = Utils.GetFunctionParam(3, ctx);
         let _param4: string = Utils.GetFunctionParam(4, ctx);
         let _param5: string = Utils.GetFunctionParam(5, ctx);
-        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE, Utils.GetLine(ctx)));
         _values.push(this.convertValue(`array_${_param2
         .replaceAll(('['), '')
         .replaceAll((']'), '')
-        .split(",")[0]}`, VariableType.array));
-        _values.push(this.convertValue(_param3, VariableType.INT_TYPE));
-        _values.push(this.convertValue(_param4, VariableType.INT_TYPE));
-        _values.push(this.convertValue(_param5, VariableType.INT_TYPE));
-        this.functions.push({ function: _function, values: _values });
+        .split(",")[0]}`, VariableType.array, Utils.GetLine(ctx)));
+        _values.push(this.convertValue(_param3, VariableType.INT_TYPE, Utils.GetLine(ctx)));
+        _values.push(this.convertValue(_param4, VariableType.INT_TYPE, Utils.GetLine(ctx)));
+        _values.push(this.convertValue(_param5, VariableType.INT_TYPE, Utils.GetLine(ctx)));
+        this.functions.push({ function: _function, values: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Function pushed " + _function)
     }
 
@@ -254,12 +255,12 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _values: (FunctionValue | Variable)[] = [];
         let _param1: string = Utils.GetFunctionParam(1, ctx);
         let _param2: string = Utils.GetFunctionParam(2, ctx);
-        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE, Utils.GetLine(ctx)));
         _values.push(this.convertValue(`array_${_param2
         .replaceAll(('['), '')
         .replaceAll((']'), '')
-        .split(",")[0]}`, VariableType.array));
-        this.functions.push({ function: _function, values: _values });
+        .split(",")[0]}`, VariableType.array, Utils.GetLine(ctx)));
+        this.functions.push({ function: _function, values: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Function pushed " + _function)
     }
 
@@ -269,8 +270,8 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         const _function: DefaultFunctions = DefaultFunctions.CREATE_RANGE_MUTATOR;
         let _values: (FunctionValue | Variable)[] = [];
         let _param1: string = Utils.GetFunctionParam(1, ctx);
-        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE));
-        this.functions.push({ function: _function, values: _values });
+        _values.push(this.convertValue(_param1, VariableType.STRING_TYPE, Utils.GetLine(ctx)));
+        this.functions.push({ function: _function, values: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Function pushed " + _function)
     }
 
@@ -291,9 +292,9 @@ class DsVisitor extends DataStructureGrammarParserVisitor<any> {
         let _values: Variable[] = [];
         _content.forEach(c => {
             // Need to implement error handling if a function is provided instead of a variable
-            _values.push(this.convertValue(c, VariableType.any, Object.values(VariableType)))
+            _values.push(this.convertValue(c, VariableType.any, Utils.GetLine(ctx), Object.values(VariableType)))
         })
-        this.variables.push({ type: VariableType.array, id: `array_${_id}`, num: ctx.ruleIndex, value: _values });
+        this.variables.push({ type: VariableType.array, id: `array_${_id}`, num: ctx.ruleIndex, value: _values, line: Utils.GetLine(ctx) });
         this.logVerbose("Variable pushed " + _id + " " + _values)
     }
 }

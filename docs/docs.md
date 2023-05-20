@@ -6,7 +6,7 @@
         - [Utils](#utils)
         - [Interfaces](#interfaces)
         - [Mutators](#mutators)
-        - [Generation](#functions.generation)
+        - [Generation](#generation)
     - [Template Creation](#template)
     - [Script basics]()
 - Command line

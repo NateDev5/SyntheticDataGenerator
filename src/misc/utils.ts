@@ -1,6 +1,6 @@
 import path from "path";
-import { Variable, FunctionValue, VariableType } from "./types.js";
-import { ParserRuleContext } from "antlr4";
+import { Variable, FunctionValue, VariableType, Function } from "./types.js";
+import { ParserRuleContext, RuleContext } from "antlr4";
 import { MissingParameterError } from "./errors.js";
 import chalk from "chalk";
 
@@ -139,6 +139,25 @@ class Utils {
     
     public static Overline(value: string): string {
         return chalk.blueBright(value);
+    }
+
+    public static GetValuesFromFunction (functions: any[], functionIndex: number): any[] {
+        (functions[functionIndex] as Function).values.forEach(v => {
+            console.log(this.IsVariable(v));
+        })
+        return [];
+    }
+
+    public static IsVariable (variable: any): variable is Variable {
+        return 'num' in variable;
+    }
+
+    public static IsFunction (_function: any): _function is Function {
+        return 'function' in _function;
+    }
+
+    public static GetLine (ctx: any): number {
+        return ctx.start.line;
     }
 }
 

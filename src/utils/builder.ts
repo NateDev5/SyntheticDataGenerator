@@ -100,6 +100,7 @@ export class Builder {
             this.out = Utils.Replace(this.out, Tags.constructors, this.constructors.join("\n"))
             this.out = Utils.Replace(this.out, Tags.declarations, this.declarations.join(",\n"))
             //REDO THIS WHOLE PART
+            this.log(startPoint.function)
             switch (startPoint.function) {
                 case DefaultFunctions.GENERATE:
                     this.out = this.out.replace(Tags.startPoint, `p.Generate`);
@@ -119,7 +120,14 @@ export class Builder {
                     // Interface
                     //this.log(JSON.stringify(result.funcs[((startPoint.values[0] as Variable).value as FunctionVariable).index].values[1]));
                     //let jsonFile = this.functions.find(f => f.)
-                    this.log(startPoint.values[0].value)
+                    //console.log(Utils.GetValuesFromFunction(result.funcs, (startPoint.values[0].value as Function).))
+                    if (Utils.IsVariable(startPoint.values[0])) {
+                        const _var: Variable = startPoint.values[0] as Variable;
+                        if (_var.type != Utils.GetEnumNameFromValue(VariableType, VariableType.INTERFACE_TYPE))
+                            throw new Error(`Variable "${this.Overline(_var.id)}" is not of type "${this.Overline(VariableType.INTERFACE_TYPE)}" at ${this.Overline("line:" + _var.line)}`)
+                        //if(Utils.IsFunction())
+                    }
+                    this.log(JSON.stringify(startPoint.values[0] as Variable))
                     this.out = this.out.replace(Tags.startPointValues, `"${startPoint.values[0].value}", [${array.join(",")}], ${startPoint.values[2].value}, ${startPoint.values[3].value}, ${startPoint.values[4].value}`)
                     break;
             }
@@ -136,7 +144,7 @@ export class Builder {
                 writeFileSync(outputPath, this.out);
                 exec(buildCommand.replace("<FILE_PATH>", path.resolve(outputPath)), (err) => {
                     unlinkSync(outputPath);
-                    if(err != null) {
+                    if (err != null) {
                         Debug.WriteLine(err, Severity.FatalError, Sources.Builder);
                         Debug.WriteLine("Building operation aborted", Severity.FatalError, Sources.Builder);
                         return;

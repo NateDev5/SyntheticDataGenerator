@@ -38,9 +38,9 @@ export interface Variable {
     type: VariableType,
     id: string,
     value: any | VariableError | undefined,
-    num: number
+    num: number,
+    line: number
 }
-    
 
 export enum DefaultFunctions {
     CREATE_INTERFACE = "createInterface",
@@ -55,7 +55,8 @@ export enum DefaultFunctions {
 
 export interface Function {
     function: DefaultFunctions,
-    values: (FunctionValue|Variable|FunctionVariable)[]
+    values: (FunctionValue|Variable|FunctionVariable)[],
+    line: number
 }
 
 export interface FunctionValue {

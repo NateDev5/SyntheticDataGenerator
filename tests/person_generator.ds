@@ -34,4 +34,4 @@ mutator height -> CREATE_RANGE_MUTATOR("Person.Height");
 
 # Generate with mutators
 # <Name_of_interface> <array_of_mutator> <numbers_of_starting_couples>
-GENERATE_WITH_MUTATORS (Person, [eyeColor,height], 2, 2, 4);
+GENERATE_WITH_MUTATORS (height, [eyeColor,height], 2, 2, 4);
